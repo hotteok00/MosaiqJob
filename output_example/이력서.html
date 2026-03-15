@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>홍길동 이력서</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  font-size: 10.5px;
+  line-height: 1.6;
+  color: #1a1a1a;
+  background: #e8e8e8;
+}
+
+.page {
+  width: 210mm;
+  min-height: 297mm;
+  margin: 12mm auto;
+  background: #fff;
+  padding: 16mm 17mm 14mm 17mm;
+  box-shadow: 0 2px 16px rgba(0,0,0,0.12);
+}
+
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; box-shadow: none; width: 100%; padding: 14mm 17mm; }
+  @page { margin: 0; size: A4; }
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 2px solid #111;
+  padding-bottom: 10px;
+  margin-bottom: 14px;
+}
+.header-left h1 {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  margin-bottom: 2px;
+}
+.header-left .title {
+  font-size: 11px;
+  color: #555;
+  letter-spacing: 0.04em;
+}
+.header-right {
+  text-align: right;
+  font-size: 10px;
+  color: #444;
+  line-height: 1.85;
+}
+.header-right a { color: #1d4ed8; text-decoration: none; }
+
+/* ── Summary ── */
+.summary {
+  background: #f8f9fa;
+  border-left: 3px solid #111;
+  padding: 9px 13px;
+  margin-bottom: 16px;
+  font-size: 10.5px;
+  line-height: 1.75;
+  color: #333;
+}
+
+/* ── Section ── */
+.section { margin-bottom: 15px; }
+.section-title {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #111;
+  border-bottom: 1px solid #bbb;
+  padding-bottom: 3px;
+  margin-bottom: 9px;
+}
+
+/* ── Experience ── */
+.exp-item { margin-bottom: 8px; }
+.exp-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 1px;
+}
+.exp-company { font-weight: 700; font-size: 11px; }
+.exp-period { font-size: 9.5px; color: #666; }
+.exp-role { font-size: 10px; color: #555; margin-bottom: 4px; }
+.bullet-list { list-style: none; padding: 0; }
+.bullet-list li {
+  font-size: 10.5px;
+  color: #333;
+  padding-left: 11px;
+  position: relative;
+  margin-bottom: 2px;
+}
+.bullet-list li::before { content: "·"; position: absolute; left: 2px; color: #888; }
+
+/* ── Projects ── */
+.project-item { margin-bottom: 10px; }
+.project-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.project-name { font-weight: 700; font-size: 11px; }
+.project-sub { font-weight: 400; color: #555; font-size: 10px; }
+.project-period { font-size: 9.5px; color: #777; white-space: nowrap; margin-left: 8px; }
+.project-meta { font-size: 9.5px; color: #888; margin-bottom: 3px; }
+.divider { border: none; border-top: 1px solid #ebebeb; margin: 8px 0; }
+
+/* ── Stack ── */
+.stack-grid {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 3px 8px;
+}
+.stack-label { font-size: 10px; font-weight: 600; color: #555; padding-top: 1px; }
+.stack-value { font-size: 10.5px; color: #333; }
+
+/* ── Bottom two-col ── */
+.bottom-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 22px;
+}
+
+/* ── Misc ── */
+.row-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 5px;
+  font-size: 10.5px;
+}
+.row-name { font-weight: 600; }
+.row-detail { color: #666; font-size: 10px; }
+.row-date { color: #888; font-size: 9.5px; white-space: nowrap; margin-left: 6px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Header -->
+  <div class="header">
+    <div class="header-left">
+      <h1>홍길동</h1>
+      <div class="title">Robot Software Engineer</div>
+    </div>
+    <div class="header-right">
+      010-1234-5678 &nbsp;|&nbsp; gildong@example.com<br>
+      <a href="https://github.com/example-user">github.com/example-user</a><br>
+      서울특별시 강남구
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary">
+    두산 Rokey Boot Camp(845시간)에서 ROS2·MoveIt2·SLAM 기반 로봇 프로젝트 6건을 완주했고, 현재 VisionSpace에서 협동로봇 ROS2 포팅과 디지털 트윈 연동을 실무로 수행 중입니다.<br>
+    모션 플래닝 설계·Octomap 충돌 회피·Nav2 자율주행 구현까지 직접 작성한 코드로 확인하실 수 있습니다.
+  </div>
+
+  <!-- Experience -->
+  <div class="section">
+    <div class="section-title">경력</div>
+    <div class="exp-item">
+      <div class="exp-header">
+        <span class="exp-company">VisionSpace</span>
+        <span class="exp-period">2025.10 – 현재</span>
+      </div>
+      <div class="exp-role">Robot AI Developer</div>
+      <ul class="bullet-list">
+        <li>MyAGV·MyCobot ROS2 Foxy → Jazzy 포팅 — 패키지 의존성 충돌을 분석·수정 후 Gazebo에서 동작 검증까지 완료</li>
+        <li>Unreal Engine(Digital Twin)과 ROS2(MoveIt2, Gazebo) 연동 — 시뮬레이션과 실제 로봇 제어 흐름을 단일 파이프라인으로 통합</li>
+        <li>Robot Learning Platform 개발 참여</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Projects -->
+  <div class="section">
+    <div class="section-title">프로젝트</div>
+
+    <div class="project-item">
+      <div class="project-header">
+        <span class="project-name">MEDICREW <span class="project-sub">— AI 기반 협동 로봇 작업 어시스턴트</span></span>
+        <span class="project-period">2025.06</span>
+      </div>
+      <div class="project-meta">4인 팀 &nbsp;|&nbsp; ROS2 Humble · MoveIt2 · Octomap · YOLO · LangChain · MongoDB</div>
+      <ul class="bullet-list">
+        <li>병원 중앙공급실 협동로봇 자동화 — 정적 경로 계획으로는 실시간 장애물 대응이 불가능했기 때문에, Octomap으로 3D 환경 맵을 실시간 생성하고 MoveIt2와 연동해 충돌 회피 경로를 동적으로 계산했습니다.</li>
+        <li>음성 입력 → LangChain LLM → ROS2 Action → 로봇 동작의 엔드투엔드 파이프라인 구조를 설계하고 구현했습니다.</li>
+        <li>ROS2 기반 전체 제어 구조 설계 및 각 노드 간 인터페이스 정의를 담당했습니다.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="project-item">
+      <div class="project-header">
+        <span class="project-name">ROADY <span class="project-sub">— 디지털 트윈 기반 도로 낙하물 수거 자율주행 로봇</span></span>
+        <span class="project-period">2025.06 – 07</span>
+      </div>
+      <div class="project-meta">4인 팀 &nbsp;|&nbsp; ROS2 Humble · MoveIt · OpenCV · SQLite</div>
+      <ul class="bullet-list">
+        <li>ArUco 마커 인식으로 낙하물 위치를 계산하고 MoveIt 경로 계획을 연동해 매니퓰레이터 자동 수거 동작을 구현했습니다.</li>
+        <li>HSV·Canny+Hough·SIFT 다중 알고리즘 기반 차선·교통 표지·신호 인식 전처리를 담당했습니다.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="project-item">
+      <div class="project-header">
+        <span class="project-name">DrawBot <span class="project-sub">— 휴먼 인터페이스 기반 로봇팔 드로잉 자동화</span></span>
+        <span class="project-period">2025.05 – 06</span>
+      </div>
+      <div class="project-meta">4인 팀 &nbsp;|&nbsp; ROS2 Humble · DRL · Tkinter</div>
+      <ul class="bullet-list">
+        <li>사용자 마우스 입력 및 이미지를 로봇팔 좌표 시퀀스로 변환하는 제어 시스템을 설계하고 구현했습니다.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="project-item">
+      <div class="project-header">
+        <span class="project-name">CODA <span class="project-sub">— SLAM 기반 교통사고 현장 보존 로봇</span></span>
+        <span class="project-period">2025.05</span>
+      </div>
+      <div class="project-meta">7인 팀 &nbsp;|&nbsp; ROS2 Humble · AutoSLAM · Nav2 · TF · LiDAR · RGB/Depth 센서 · YOLO</div>
+      <ul class="bullet-list">
+        <li>메인 서버 시스템 아키텍처 설계 — 사고 감지·촬영·차량 통제 노드가 타이밍 없이 실행되면 데이터 정합성이 무너졌기 때문에, 중앙 서버가 각 노드 상태를 관리하는 구조로 설계했습니다.</li>
+        <li>AutoSLAM으로 환경 맵을 생성하고 Nav2 파라미터를 튜닝해 사고 지점까지의 자율 이동을 구현했습니다.</li>
+      </ul>
+    </div>
+
+    <hr class="divider">
+
+    <div class="project-item">
+      <div class="project-header">
+        <span class="project-name">ArtGuard <span class="project-sub">— SLAM 기반 미술품 상태 자율 점검 로봇</span></span>
+        <span class="project-period">2025.05</span>
+      </div>
+      <div class="project-meta">4인 팀 &nbsp;|&nbsp; ROS2 Humble · SLAM · Nav2 · TF · LiDAR · RGB/Depth 센서 · YOLO</div>
+      <ul class="bullet-list">
+        <li>시스템 통합 개발 담당 — SLAM 자율 순찰·동적 장애물 회피·YOLO 이상 감지·이미지 비교 분석 파이프라인을 하나의 흐름으로 연결했습니다.</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Tech Stack -->
+  <div class="section">
+    <div class="section-title">기술 스택</div>
+    <div class="stack-grid">
+      <span class="stack-label">언어</span>
+      <span class="stack-value">C++, Python, C</span>
+
+      <span class="stack-label">로봇 프레임워크</span>
+      <span class="stack-value">ROS2 (Humble / Jazzy / Foxy), MoveIt2, Nav2, SLAM, TF, Gazebo</span>
+
+      <span class="stack-label">AI / 컴퓨터 비전</span>
+      <span class="stack-value">YOLO, OpenCV, LangChain</span>
+
+      <span class="stack-label">인프라 / 환경</span>
+      <span class="stack-value">Docker, Ubuntu Linux, WSL</span>
+
+      <span class="stack-label">하드웨어</span>
+      <span class="stack-value">Jetson Orin Nano, Raspberry Pi, Arduino, LiDAR 센서</span>
+    </div>
+  </div>
+
+  <!-- Bottom: Education + Certs/Awards -->
+  <div class="bottom-grid">
+
+    <div>
+      <div class="section">
+        <div class="section-title">학력</div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">영남대학교</div>
+            <div class="row-detail">학점 3.9 / 4.5 &nbsp;·&nbsp; 졸업</div>
+          </div>
+          <span class="row-date">2019.03 – 2025.02</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">교육</div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">두산 Rokey Boot Camp 3기</div>
+            <div class="row-detail">로봇 SW 집중 교육 845시간</div>
+          </div>
+          <span class="row-date">2025.01 – 07</span>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">AI 전문인력 양성 심화과정</div>
+            <div class="row-detail">30시간</div>
+          </div>
+          <span class="row-date">2024.11</span>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="section">
+        <div class="section-title">자격증 / 어학</div>
+        <div class="row-item">
+          <span class="row-name">정보처리기사</span>
+          <span class="row-date">2024.06</span>
+        </div>
+        <div class="row-item">
+          <span class="row-name">SQLD</span>
+          <span class="row-date">2024.12</span>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">OPIc</div>
+            <div class="row-detail">Intermediate Mid 2</div>
+          </div>
+          <span class="row-date">2024.09</span>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-title">수상 / 활동</div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">학생우수논문상</div>
+            <div class="row-detail">KIICE 제55회 춘계종합학술대회</div>
+          </div>
+          <span class="row-date">2024.05</span>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">RoCo Challenge @ AAAI 2026</div>
+          </div>
+          <span class="row-date">2025.11 – 2026.01</span>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">Physical AI Hackathon</div>
+          </div>
+          <span class="row-date">2026.02</span>
+        </div>
+        <div class="row-item">
+          <div>
+            <div class="row-name">학부연구생</div>
+          </div>
+          <span class="row-date">2023.07 – 2024.08</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+</body>
+</html>

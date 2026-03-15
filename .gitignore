@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+*.whl
+pip-log.txt
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+._*
+
+# Environment
+.env
+*.local
+
+# Project
+output/
+.chainlit/
+.mcp.json
+
+# Credentials
+config/credentials*.json
+*.pem
+*.key
