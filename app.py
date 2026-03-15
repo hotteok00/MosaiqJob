@@ -48,12 +48,17 @@ def _extract_company_name(jd_analysis: str) -> str:
 
     def _find(obj):
         if isinstance(obj, dict):
-            for key in ("company_name", "company"):
+            for key in ("company_name", "company", "target_company", "회사명", "기업명"):
                 val = obj.get(key)
                 if isinstance(val, str) and val.strip():
                     return val.strip()
             for v in obj.values():
                 found = _find(v)
+                if found:
+                    return found
+        if isinstance(obj, list):
+            for item in obj:
+                found = _find(item)
                 if found:
                     return found
         return None
