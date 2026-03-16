@@ -266,11 +266,12 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
 /* ── Project Media ── */
 .proj-media {
   display: flex;
-  gap: 12px;
+  flex-direction: column;
+  gap: 8px;
   margin-bottom: 12px;
 }
 .media-item {
-  flex: 1;
+  width: 100%;
 }
 .media-label {
   font-size: 7pt;
@@ -282,7 +283,7 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
 }
 .proj-img {
   width: 100%;
-  max-height: 140px;
+  max-height: 180px;
   object-fit: contain;
   border: 1px solid #e2e8f0;
   border-radius: 4px;
@@ -593,17 +594,12 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
 
   <div class="proj-overview">{{ h.overview }}</div>
 
-  {% if h.pipeline_nodes or h.demo_img %}
+  {% if h.diagram_img or h.demo_img %}
   <div class="proj-media">
-    {% if h.pipeline_nodes %}
+    {% if h.diagram_img %}
     <div class="media-item">
-      <div class="media-label">파이프라인 구조</div>
-      <div class="pipeline-flow">
-        {% for node in h.pipeline_nodes %}
-          {% if not loop.first %}<span class="pipe-arrow">→</span>{% endif %}
-          <span class="pipe-node {{ node.style|default('pipe-node-secondary') }}">{{ node.label }}</span>
-        {% endfor %}
-      </div>
+      <div class="media-label">시스템 구조</div>
+      <img src="{{ h.diagram_img }}" alt="{{ h.name }} 아키텍처" class="proj-img">
     </div>
     {% endif %}
     {% if h.demo_img %}
