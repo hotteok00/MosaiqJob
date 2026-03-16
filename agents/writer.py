@@ -5,9 +5,10 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
-from agents.enrich import enrich_resume, enrich_portfolio, enrich_cover, _load_registry
+from agents.enrich import enrich_resume, enrich_portfolio, enrich_cover, _load_registry, shrink_portfolio_highlight
 from agents.llm import ask_claude, extract_json
 from agents.qa import validate_resume, validate_portfolio, validate_cover
+from renderer.pdf import html_to_pdf_bytes, count_pages_from_bytes
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
@@ -70,7 +71,7 @@ def write_resume(strategy: str, source_data: str, jd_analysis: str) -> str:
 
 
 def write_portfolio(strategy: str, source_data: str, resume_html: str) -> str:
-    """포트폴리오 HTML을 생성한다."""
+    """포트폴리오 HTML을 생성한다. 강조 프로젝트 페이지 초과 시 자동 축소."""
     prompt = f"{PORTFOLIO_PROMPT}\n\n## 전략\n{strategy}\n\n## 소스 데이터\n{source_data}\n\n## 이력서 (참조용, 내용 반복 금지)\n{resume_html}"
     result = ask_claude(prompt, timeout=600)
     try:
@@ -80,7 +81,28 @@ def write_portfolio(strategy: str, source_data: str, resume_html: str) -> str:
         warnings = validate_portfolio(data)
         if warnings:
             sys.stderr.write(f"[QA] 포트폴리오 경고: {warnings}\n")
-        return _render_template("portfolio.html", json.dumps(data, ensure_ascii=False))
+
+        # 페이지 수 제한: 1(임팩트) + N(강조) + 1(기타) = 2+N 페이지
+        expected_pages = 2 + len(data.get("highlights", []))
+        max_shrink = 3
+
+        for level in range(max_shrink + 1):
+            html = _render_template("portfolio.html", json.dumps(data, ensure_ascii=False))
+            pdf_bytes = html_to_pdf_bytes(html)
+            actual_pages = count_pages_from_bytes(pdf_bytes)
+
+            if actual_pages <= expected_pages:
+                break
+
+            sys.stderr.write(
+                f"[QA] 포트폴리오 페이지 초과: {actual_pages}p > {expected_pages}p → 축소 level {level + 1}\n"
+            )
+            data["highlights"] = [
+                shrink_portfolio_highlight(h, level + 1)
+                for h in data.get("highlights", [])
+            ]
+
+        return html
     except (json.JSONDecodeError, Exception):
         return _extract_html(result)
 

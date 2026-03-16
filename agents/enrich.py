@@ -187,3 +187,35 @@ def enrich_cover(data: dict) -> dict:
             section["content"] = wrapped
 
     return data
+
+
+def shrink_portfolio_highlight(highlight: dict, level: int) -> dict:
+    """강조 프로젝트 데이터를 축소한다. level이 높을수록 더 많이 축소.
+
+    level 1: STAR bullet 2개로, overview 1줄
+    level 2: 이미지 1개만, STAR bullet 1개
+    level 3: 이미지 제거, STAR bullet 1개, 기여도 설명 제거
+    """
+    h = highlight.copy()
+
+    if level >= 1:
+        for key in ("situation", "decision", "action", "result"):
+            if isinstance(h.get(key), list) and len(h[key]) > 2:
+                h[key] = h[key][:2]
+        if h.get("overview") and len(h["overview"]) > 80:
+            h["overview"] = h["overview"][:80] + "…"
+
+    if level >= 2:
+        for key in ("situation", "decision", "action", "result"):
+            if isinstance(h.get(key), list) and len(h[key]) > 1:
+                h[key] = h[key][:1]
+        # 이미지 1개만 유지 (diagram 우선)
+        if h.get("diagram_img") and h.get("demo_img"):
+            h["demo_img"] = ""
+
+    if level >= 3:
+        h["diagram_img"] = ""
+        h["demo_img"] = ""
+        h["contribution_desc"] = ""
+
+    return h

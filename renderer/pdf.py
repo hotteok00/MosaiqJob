@@ -1,6 +1,8 @@
+import io
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
+from PyPDF2 import PdfReader
 from weasyprint import HTML
 
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
@@ -43,12 +45,31 @@ html, body {
 """
 
 
-def html_to_pdf(html_string: str, output_path: Path) -> None:
-    # @page 마진을 강제 삽입하여 좌우 잘림 방지
+def _inject_page_css(html_string: str) -> str:
+    """@page 마진을 강제 삽입하여 좌우 잘림 방지."""
     if "<head>" in html_string:
-        html_string = html_string.replace("<head>", f"<head>{_PAGE_CSS}", 1)
+        return html_string.replace("<head>", f"<head>{_PAGE_CSS}", 1)
     elif "<html" in html_string:
-        html_string = html_string.replace("<html", f"<html><head>{_PAGE_CSS}</head", 1)
-    else:
-        html_string = f"{_PAGE_CSS}{html_string}"
+        return html_string.replace("<html", f"<html><head>{_PAGE_CSS}</head", 1)
+    return f"{_PAGE_CSS}{html_string}"
+
+
+def html_to_pdf(html_string: str, output_path: Path) -> None:
+    html_string = _inject_page_css(html_string)
     HTML(string=html_string, base_url=str(TEMPLATES_DIR)).write_pdf(str(output_path))
+
+
+def count_pdf_pages(pdf_path: Path) -> int:
+    """PDF 파일의 페이지 수를 반환한다."""
+    return len(PdfReader(str(pdf_path)).pages)
+
+
+def html_to_pdf_bytes(html_string: str) -> bytes:
+    """HTML을 PDF 바이트로 변환한다 (파일 저장 없이)."""
+    html_string = _inject_page_css(html_string)
+    return HTML(string=html_string, base_url=str(TEMPLATES_DIR)).write_pdf()
+
+
+def count_pages_from_bytes(pdf_bytes: bytes) -> int:
+    """PDF 바이트에서 페이지 수를 반환한다."""
+    return len(PdfReader(io.BytesIO(pdf_bytes)).pages)
