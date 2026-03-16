@@ -2,18 +2,166 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="styles/common.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ person.name }} — 자기소개서 · {{ target.company }}</title>
+    <link rel="stylesheet" href="styles/theme.css">
     <style>
-        .cover-header { text-align: center; margin-bottom: 24px; }
-        .cover-header h1 { font-size: 16pt; }
-        .cover-header .target { color: #666; font-size: 11pt; }
-        .question { margin-bottom: 20px; }
-        .question h3 { color: #1a73e8; margin-bottom: 8px; }
-        .question .answer { text-indent: 1em; text-align: justify; }
-        .char-count { text-align: right; font-size: 8pt; color: #999; }
+        /* ── Cover Letter Overrides ── */
+        body {
+            font-size: 10.5pt;
+            line-height: 1.95;
+        }
+
+        .page {
+            padding: 22mm 26mm;
+        }
+
+        @media print {
+            .page { padding: 0; }
+            @page { margin: 22mm 26mm; }
+        }
+
+        /* ── Header ── */
+        .cl-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            padding-bottom: 13px;
+            margin-bottom: 6px;
+        }
+
+        .cl-header .name {
+            font-size: 21pt;
+            font-weight: 700;
+            color: var(--text-primary);
+            letter-spacing: -0.5px;
+        }
+
+        .cl-header-right {
+            text-align: right;
+            font-size: 8.8pt;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .cl-header-right .company {
+            font-size: 10pt;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .cl-header-right .position {
+            color: var(--text-secondary);
+        }
+
+        /* ── Doc Label ── */
+        .cl-label {
+            font-size: 8pt;
+            font-weight: 700;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1.4px;
+            margin-bottom: 4px;
+        }
+
+        /* ── Body ── */
+        .cover-body {
+            font-size: 10.5pt;
+            line-height: 2.0;
+            color: var(--text-primary);
+            word-break: keep-all;
+            text-align: justify;
+        }
+
+        .cover-body p {
+            margin-bottom: 20px;
+            text-indent: 1em;
+        }
+
+        .cover-body p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ── Question Section ── */
+        .cl-section {
+            margin-bottom: 28px;
+        }
+
+        .cl-section-label {
+            font-size: 9pt;
+            font-weight: 700;
+            color: var(--text-muted);
+            letter-spacing: 0.8px;
+            margin-bottom: 10px;
+            padding-bottom: 6px;
+            border-bottom: 0.5px solid var(--border-light);
+        }
+
+        /* ── Signature ── */
+        .cl-signature {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 44px;
+            padding-top: 14px;
+            border-top: 0.5px solid var(--border-light);
+            font-size: 9pt;
+            color: var(--text-muted);
+        }
+
+        .cl-signature .sig-name {
+            font-weight: 700;
+            font-size: 9.5pt;
+            color: var(--text-primary);
+        }
+
+        .cl-signature .sig-contact {
+            font-size: 8.5pt;
+            color: var(--text-muted);
+            margin-left: 12px;
+        }
     </style>
 </head>
 <body>
-    {{ content }}
+<div class="page">
+
+    <!-- Header: 이름(좌) + 회사/직무(우) -->
+    <div class="cl-header">
+        <div class="name">{{ person.name }}</div>
+        <div class="cl-header-right">
+            <div class="company">{{ target.company }}</div>
+            <div class="position">{{ target.position }}</div>
+        </div>
+    </div>
+
+    <!-- Label -->
+    <div class="cl-label">{{ doc_label }}</div>
+
+    <!-- Divider -->
+    <hr class="thick">
+
+    <!-- Body: 섹션별 반복 -->
+    {% for section in sections %}
+    <div class="cl-section">
+        {% if section.label and section.label != "자유형" %}
+        <div class="cl-section-label">{{ section.label }}</div>
+        {% endif %}
+
+        <div class="cover-body">
+            {{ section.content | safe }}
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Signature -->
+    <div class="cl-signature">
+        <div>
+            <span class="sig-name">{{ person.name }}</span>
+            <span class="sig-contact">{{ person.email }}</span>
+        </div>
+        <div>{{ date }}</div>
+    </div>
+
+</div>
 </body>
 </html>
