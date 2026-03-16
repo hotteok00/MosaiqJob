@@ -1,12 +1,29 @@
+import json
 import re
 from pathlib import Path
 
-from agents.llm import ask_claude
+from jinja2 import Environment, FileSystemLoader
+
+from agents.llm import ask_claude, extract_json
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
+TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
+
 RESUME_PROMPT = (PROMPTS_DIR / "writer_resume.md").read_text()
 PORTFOLIO_PROMPT = (PROMPTS_DIR / "writer_portfolio.md").read_text()
 COVER_PROMPT = (PROMPTS_DIR / "writer_cover.md").read_text()
+
+_jinja_env = Environment(
+    loader=FileSystemLoader(str(TEMPLATES_DIR)),
+    autoescape=False,
+)
+
+
+def _render_template(template_name: str, data_json: str) -> str:
+    """JSON 문자열을 파싱하여 Jinja2 템플릿으로 렌더링한다."""
+    data = json.loads(data_json)
+    template = _jinja_env.get_template(template_name)
+    return template.render(**data)
 
 
 def _extract_html(response: str) -> str:
@@ -36,13 +53,21 @@ def _extract_html(response: str) -> str:
 def write_resume(strategy: str, source_data: str, jd_analysis: str) -> str:
     """이력서 HTML을 생성한다."""
     prompt = f"{RESUME_PROMPT}\n\n## 전략\n{strategy}\n\n## 소스 데이터\n{source_data}\n\n## JD 분석\n{jd_analysis}"
-    return _extract_html(ask_claude(prompt, timeout=600))
+    result = ask_claude(prompt, timeout=600)
+    try:
+        return _render_template("resume.html", extract_json(result))
+    except (json.JSONDecodeError, Exception):
+        return _extract_html(result)
 
 
 def write_portfolio(strategy: str, source_data: str, resume_html: str) -> str:
     """포트폴리오 HTML을 생성한다."""
     prompt = f"{PORTFOLIO_PROMPT}\n\n## 전략\n{strategy}\n\n## 소스 데이터\n{source_data}\n\n## 이력서 (참조용, 내용 반복 금지)\n{resume_html}"
-    return _extract_html(ask_claude(prompt, timeout=600))
+    result = ask_claude(prompt, timeout=600)
+    try:
+        return _render_template("portfolio.html", extract_json(result))
+    except (json.JSONDecodeError, Exception):
+        return _extract_html(result)
 
 
 def write_cover(
@@ -60,4 +85,8 @@ def write_cover(
         f"## 이력서 (참조용, 내용 반복 금지)\n{resume_html}\n\n"
         f"## 포트폴리오 (참조용, 내용 반복 금지)\n{portfolio_html}"
     )
-    return _extract_html(ask_claude(prompt, timeout=600))
+    result = ask_claude(prompt, timeout=600)
+    try:
+        return _render_template("cover_letter.html", extract_json(result))
+    except (json.JSONDecodeError, Exception):
+        return _extract_html(result)

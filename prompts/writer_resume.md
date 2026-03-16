@@ -21,9 +21,18 @@
 - 경력/프로젝트는 시간순 배치
 - 직무 무관 항목 제외
 
-결과는 완성된 HTML 문서로 반환하세요. 템플릿 변수가 아닌 최종 콘텐츠를 직접 작성하세요.
-
 ## 출력 규칙
-- 완성된 HTML 문서만 반환하세요. <!DOCTYPE html>로 시작하고 </html>로 끝나야 합니다.
-- HTML 외의 텍스트(설명, 요약, 코드블록 마커, 작성 의도 등)는 절대 포함하지 마세요.
-- ```html 같은 코드블록 마커를 사용하지 마세요.
+- 결과를 **JSON 형식**으로 반환하세요. HTML이 아닌 순수 JSON만 반환하세요.
+- 코드블록 마커(```)를 사용하지 마세요.
+- 다음 JSON 구조를 따르세요:
+
+{
+  "person": {"name": "", "title": "", "phone": "", "email": "", "github": "", "location": ""},
+  "summary": "요약문 (HTML <br> 태그 사용 가능)",
+  "careers": [{"company": "", "position": "", "period": "", "bullets": [""]}],
+  "projects": [{"name": "", "subtitle": "", "period": "", "team": "", "role_desc": "", "tags": [""], "is_personal": false, "github_url": ""}],
+  "skills": {"로보틱스": "", "언어": "", "AI / 비전": "", "하드웨어": ""},
+  "education": [{"school": "", "detail": "", "period": ""}],
+  "certifications": [{"name": "", "date": ""}],
+  "activities": [{"label": "", "desc": "", "period": ""}]
+}

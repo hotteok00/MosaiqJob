@@ -30,9 +30,26 @@
 - 프로젝트당 카드 1개: 이름/한 줄 설명/기술 태그/기간
 - 3~4개가 적당
 
-결과는 완성된 HTML 문서로 반환하세요.
-
 ## 출력 규칙
-- 완성된 HTML 문서만 반환하세요. <!DOCTYPE html>로 시작하고 </html>로 끝나야 합니다.
-- HTML 외의 텍스트(설명, 요약, 코드블록 마커, 작성 의도 등)는 절대 포함하지 마세요.
-- ```html 같은 코드블록 마커를 사용하지 마세요.
+- 결과를 **JSON 형식**으로 반환하세요. HTML이 아닌 순수 JSON만 반환하세요.
+- 코드블록 마커(```)를 사용하지 마세요.
+- 다음 JSON 구조를 따르세요:
+
+{
+  "person": {"name": "", "title": "", "phone": "", "email": "", "github": "", "company": ""},
+  "summary": "판단 중심 요약문 (이력서와 다른 관점)",
+  "competencies": [{"number": "01", "keyword": "", "description": ""}],
+  "project_table": [{"name": "", "subtitle": "", "description": "", "tags": [""], "period": "", "is_highlighted": true}],
+  "highlights": [{
+    "order": 1, "name": "", "subtitle": "", "period": "", "team": "", "role": "",
+    "overview": "",
+    "diagram_img": "에셋 레지스트리에서 해당 프로젝트의 아키텍처 이미지 URL (있으면)",
+    "demo_img": "에셋 레지스트리에서 해당 프로젝트의 데모 이미지 URL 또는 YouTube 썸네일 (있으면)",
+    "youtube_url": "YouTube 데모 영상 URL (있으면)",
+    "situation": [""], "decision": [""], "action": [""], "result": [""],
+    "contribution_pct": 75, "contribution_desc": "",
+    "tags": [""], "github_url": ""
+  }],
+  "other_projects": [{"name": "", "subtitle": "", "description": "", "tags": [""], "period": "", "team": ""}],
+  "additional": [{"section": "", "entries": [{"title": "", "detail": "", "period": ""}]}]
+}
