@@ -49,12 +49,15 @@ body {
 .page {
   width: var(--page-width);
   min-height: var(--page-min-height);
+  max-height: var(--page-min-height);
   margin: 14mm auto;
   background: #fff;
   padding: var(--page-padding);
   box-shadow: 0 3px 20px rgba(0,0,0,0.15);
   page-break-after: always;
+  page-break-inside: avoid;
   position: relative;
+  overflow: hidden;
 }
 
 @media print {
