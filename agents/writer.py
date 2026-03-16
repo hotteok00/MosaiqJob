@@ -1,10 +1,13 @@
 import json
 import re
+import sys
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader
 
+from agents.enrich import enrich_resume, enrich_portfolio, enrich_cover, _load_registry
 from agents.llm import ask_claude, extract_json
+from agents.qa import validate_resume, validate_portfolio, validate_cover
 
 PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 TEMPLATES_DIR = Path(__file__).parent.parent / "templates"
@@ -55,7 +58,13 @@ def write_resume(strategy: str, source_data: str, jd_analysis: str) -> str:
     prompt = f"{RESUME_PROMPT}\n\n## 전략\n{strategy}\n\n## 소스 데이터\n{source_data}\n\n## JD 분석\n{jd_analysis}"
     result = ask_claude(prompt, timeout=600)
     try:
-        return _render_template("resume.html", extract_json(result))
+        json_str = extract_json(result)
+        data = json.loads(json_str)
+        data = enrich_resume(data)
+        warnings = validate_resume(data)
+        if warnings:
+            sys.stderr.write(f"[QA] 이력서 경고: {warnings}\n")
+        return _render_template("resume.html", json.dumps(data, ensure_ascii=False))
     except (json.JSONDecodeError, Exception):
         return _extract_html(result)
 
@@ -65,7 +74,13 @@ def write_portfolio(strategy: str, source_data: str, resume_html: str) -> str:
     prompt = f"{PORTFOLIO_PROMPT}\n\n## 전략\n{strategy}\n\n## 소스 데이터\n{source_data}\n\n## 이력서 (참조용, 내용 반복 금지)\n{resume_html}"
     result = ask_claude(prompt, timeout=600)
     try:
-        return _render_template("portfolio.html", extract_json(result))
+        json_str = extract_json(result)
+        data = json.loads(json_str)
+        data = enrich_portfolio(data, _load_registry())
+        warnings = validate_portfolio(data)
+        if warnings:
+            sys.stderr.write(f"[QA] 포트폴리오 경고: {warnings}\n")
+        return _render_template("portfolio.html", json.dumps(data, ensure_ascii=False))
     except (json.JSONDecodeError, Exception):
         return _extract_html(result)
 
@@ -87,6 +102,12 @@ def write_cover(
     )
     result = ask_claude(prompt, timeout=600)
     try:
-        return _render_template("cover_letter.html", extract_json(result))
+        json_str = extract_json(result)
+        data = json.loads(json_str)
+        data = enrich_cover(data)
+        warnings = validate_cover(data)
+        if warnings:
+            sys.stderr.write(f"[QA] 자기소개서 경고: {warnings}\n")
+        return _render_template("cover_letter.html", json.dumps(data, ensure_ascii=False))
     except (json.JSONDecodeError, Exception):
         return _extract_html(result)
