@@ -1,0 +1,435 @@
+/*
+ * MosaiqJob 통일 디자인 테마
+ * 이력서/포트폴리오/자소서 공통 CSS
+ * 고정이 아니며 JD에 따라 최적화 가능
+ */
+
+/* ── Reset ── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ── Variables ── */
+:root {
+  /* Primary */
+  --primary:       #2563eb;
+  --primary-light: #eff6ff;
+  --primary-dark:  #1d4ed8;
+
+  /* Neutral */
+  --text-primary:   #1a1a1a;
+  --text-secondary: #374151;
+  --text-muted:     #6b7280;
+  --border-strong:  #111;
+  --border-light:   #d1d5db;
+  --bg-summary:     #f8fafc;
+  --bg-card:        #f9fafb;
+
+  /* Accent */
+  --accent-green-bg:   #f0fdf4;
+  --accent-green-text: #166534;
+  --accent-green-border: #bbf7d0;
+  --accent-yellow-bg:  #fef3c7;
+  --accent-yellow-text: #92400e;
+
+  /* Typography */
+  --font-family: 'Noto Sans KR', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif;
+  --h1-size: 21pt;
+  --h2-size: 10pt;
+  --h3-size: 9.5pt;
+  --body-size: 8.5pt;
+  --small-size: 7.8pt;
+  --tag-size: 7.3pt;
+  --line-height: 1.55;
+
+  /* Layout */
+  --page-width: 210mm;
+  --page-min-height: 297mm;
+  --page-padding: 15mm 17mm 13mm;
+  --page-padding-print: 13mm 15mm 11mm;
+}
+
+/* ── Body ── */
+body {
+  font-family: var(--font-family);
+  font-size: var(--body-size);
+  line-height: var(--line-height);
+  color: var(--text-primary);
+  background: #fff;
+}
+
+/* ── Page ── */
+.page {
+  width: var(--page-width);
+  min-height: var(--page-min-height);
+  margin: 0 auto;
+  padding: var(--page-padding);
+}
+
+.page-break { page-break-before: always; }
+
+@media print {
+  body { background: #fff; }
+  .page { margin: 0; padding: var(--page-padding-print); }
+  @page { size: A4; margin: 0; }
+}
+
+/* ── Header ── */
+.header { margin-bottom: 10px; }
+.header h1 {
+  font-size: var(--h1-size);
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+.header .role {
+  font-size: 9pt;
+  color: #4b5563;
+  margin-top: 3px;
+}
+.header .contact {
+  display: flex;
+  gap: 14px;
+  margin-top: 5px;
+  font-size: 8.3pt;
+  color: #555;
+}
+.header .contact a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+/* Header - 우측 정렬 (포폴/자소서) */
+.header-split {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+.header-right {
+  text-align: right;
+  font-size: 8.3pt;
+  color: #555;
+}
+.header-right a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+/* ── Dividers ── */
+hr.thick { border: none; border-top: 1.5px solid var(--border-strong); margin: 8px 0 10px; }
+hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7px 0; }
+
+/* ── Summary Box ── */
+.summary {
+  margin-bottom: 13px;
+  padding: 9px 12px;
+  background: var(--bg-summary);
+  border-left: 3px solid var(--primary);
+  font-size: 8.7pt;
+  line-height: 1.7;
+  color: #1e293b;
+}
+
+/* ── Section Title ── */
+section { margin-bottom: 13px; }
+
+.section-title {
+  font-size: var(--h2-size);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.section-title::after {
+  content: '';
+  flex: 1;
+  height: 0.8px;
+  background: #cbd5e1;
+}
+
+/* ── Career / Experience ── */
+.career-item { margin-bottom: 11px; }
+.career-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+.co-name { font-weight: 700; font-size: var(--h3-size); }
+.co-pos  { font-size: 8.3pt; color: var(--text-secondary); margin-left: 10px; }
+.co-period { font-size: var(--small-size); color: var(--text-muted); white-space: nowrap; }
+.career-bullets {
+  margin-top: 4px;
+  padding-left: 13px;
+  list-style: disc;
+}
+.career-bullets li {
+  margin-bottom: 2.5px;
+  font-size: 8.3pt;
+  color: #1f2937;
+  line-height: 1.5;
+}
+
+/* ── Project ── */
+.project-item { margin-bottom: 11px; }
+.proj-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2px;
+}
+.proj-name { font-weight: 700; font-size: 9.3pt; }
+.proj-subtitle { font-size: 8pt; color: #555; margin-left: 7px; }
+.proj-meta { font-size: var(--small-size); color: var(--text-muted); white-space: nowrap; }
+.proj-role {
+  font-size: 8.2pt;
+  color: var(--text-secondary);
+  line-height: 1.6;
+  margin-top: 3px;
+  padding-left: 10px;
+  border-left: 2px solid #e2e8f0;
+}
+
+/* ── Tags ── */
+.proj-tech, .tag-list {
+  margin-top: 4px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 3px;
+}
+.tag {
+  font-size: var(--tag-size);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 1px 6px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.tag-green {
+  background: var(--accent-green-bg);
+  color: var(--accent-green-text);
+}
+.tag-highlight {
+  background: var(--accent-yellow-bg);
+  color: var(--accent-yellow-text);
+}
+.badge-personal {
+  display: inline-block;
+  font-size: 6.8pt;
+  background: var(--accent-green-bg);
+  color: var(--accent-green-text);
+  border: 1px solid var(--accent-green-border);
+  padding: 0px 4px;
+  border-radius: 3px;
+  margin-left: 5px;
+  vertical-align: middle;
+}
+
+/* ── Tech Stack Grid ── */
+.tech-grid {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  row-gap: 4px;
+  column-gap: 8px;
+  font-size: 8.3pt;
+}
+.tech-label { font-weight: 600; color: var(--text-secondary); padding-top: 1px; }
+.tech-value { color: #1f2937; }
+
+/* ── Two Column (Education / Certs) ── */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 28px;
+}
+.edu-row, .cert-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  font-size: 8.3pt;
+}
+.edu-row .main, .cert-row .main { font-weight: 600; }
+.edu-row .sub-info { font-size: var(--small-size); color: var(--text-muted); margin-top: 1px; }
+.date-small { font-size: var(--small-size); color: var(--text-muted); white-space: nowrap; }
+
+/* ── Activities ── */
+.act-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+  font-size: 8.2pt;
+}
+.act-row .act-label { font-weight: 600; }
+
+/* ── Portfolio: Competency Cards ── */
+.competency-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.competency-card {
+  border: 1px solid var(--border-light);
+  border-radius: 6px;
+  padding: 14px;
+}
+.competency-card .number {
+  font-size: 22pt;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.competency-card .keyword {
+  font-size: 10pt;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.competency-card .desc {
+  font-size: 8pt;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* ── Portfolio: Project Table ── */
+.project-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 8.2pt;
+  margin-bottom: 16px;
+}
+.project-table th {
+  text-align: left;
+  font-weight: 600;
+  font-size: 7.5pt;
+  color: var(--text-muted);
+  border-bottom: 1px solid var(--border-light);
+  padding: 6px 8px;
+}
+.project-table td {
+  padding: 8px;
+  border-bottom: 1px solid #f1f5f9;
+  vertical-align: top;
+}
+.project-table .proj-name-cell { font-weight: 700; }
+
+/* ── Portfolio: STAR Grid ── */
+.star-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+  margin: 14px 0;
+}
+.star-box {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 12px;
+}
+.star-box .label {
+  font-size: 8pt;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+.star-box ul {
+  padding-left: 14px;
+  font-size: 8.2pt;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+.star-box li { margin-bottom: 3px; }
+
+/* ── Portfolio: Contribution Bar ── */
+.contrib-section {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+}
+.contrib-bar-bg {
+  width: 120px;
+  height: 6px;
+  background: #e2e8f0;
+  border-radius: 3px;
+  overflow: hidden;
+}
+.contrib-bar-fill {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+}
+.contrib-pct {
+  font-size: 10pt;
+  font-weight: 700;
+}
+.contrib-desc {
+  font-size: 7.8pt;
+  color: var(--text-muted);
+}
+
+/* ── Portfolio: Other Project Cards ── */
+.card-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.project-card {
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  padding: 14px;
+}
+.project-card .card-title {
+  font-size: 9.5pt;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+.project-card .card-subtitle {
+  font-size: 7.5pt;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+.project-card .card-body {
+  font-size: 8pt;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+/* ── Cover Letter ── */
+.cover-body {
+  font-size: 10.5pt;
+  line-height: 2.0;
+  color: var(--text-primary);
+  text-align: justify;
+}
+.cover-body p {
+  margin-bottom: 16px;
+  text-indent: 0;
+}
+.cover-section-label {
+  font-size: 8.5pt;
+  font-weight: 600;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  letter-spacing: 1px;
+}
+.cover-signature {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-top: 32px;
+  padding-top: 12px;
+  border-top: 0.5px solid var(--border-light);
+  font-size: 8.5pt;
+  color: var(--text-muted);
+}
+
+/* ── Utilities ── */
+.text-muted { color: var(--text-muted); }
+.text-small { font-size: var(--small-size); }
+.mt-1 { margin-top: 4px; }
+.mt-2 { margin-top: 8px; }
+.mb-1 { margin-bottom: 4px; }
+.mb-2 { margin-bottom: 8px; }
