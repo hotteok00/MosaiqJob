@@ -1,0 +1,39 @@
+{
+  "description": "프로젝트별 정적 에셋 경로 레지스트리. 포트폴리오 등에서 참조.",
+  "projects": {
+    "MEDICREW": {
+      "youtube": "https://youtu.be/V7rXOWxyarg",
+      "architecture": "https://github.com/user-attachments/assets/54c450b5-9f4c-405e-8fef-ba0b9490e580",
+      "flowchart": "https://github.com/user-attachments/assets/67010a89-4dae-406c-8c7c-979b4136967a",
+      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-2"
+    },
+    "ROADY": {
+      "youtube_week1": "https://youtu.be/pgqLOggiihU",
+      "youtube_week2": "https://youtu.be/scLdyGJXrE8",
+      "diagram_week1": "https://github.com/user-attachments/assets/30f80edf-bb54-403e-8b98-8cfb8fafcfc0",
+      "fsm_diagram": "https://github.com/user-attachments/assets/FSM_ROADY",
+      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-3"
+    },
+    "CODA": {
+      "youtube": "https://youtube.com/shorts/FaUu1ptY77Y",
+      "architecture": "https://github.com/user-attachments/assets/53a3d17e-96e8-4877-a371-c063a2284c0a",
+      "demo_video": "https://github.com/user-attachments/assets/579fdd42-cd57-4035-af2e-b0374ae688f1",
+      "github": "https://github.com/Rokey-3-D-autonomous/coda"
+    },
+    "DrawBot": {
+      "demo_video_onedrive": "https://onedrive.live.com/?id=9af2445d-8613-463b-b56a-ea43ae6fec3c&cid=245e10df6cb77cc7",
+      "github": "https://github.com/Rokey-3-D/dr_writer"
+    },
+    "ArtGuard": {
+      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-1"
+    },
+    "robot_control_bridge": {
+      "github": "https://github.com/hotteok00/robot_control_bridge"
+    }
+  },
+  "presentations": {
+    "MEDICREW": {"onedrive_pdf": "MEDICREW.pdf", "onedrive_pptx": "MEDICREW.pptx"},
+    "CODA": {"onedrive_pdf": "CODA.pdf", "onedrive_pptx": "CODA.pptx"},
+    "ROADY": {"onedrive_pdf": "ROADY.pdf", "onedrive_pptx": "ROADY.pptx"}
+  }
+}
