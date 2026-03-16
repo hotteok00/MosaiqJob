@@ -263,6 +263,88 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
   margin-bottom: 4px;
 }
 
+/* ── Project Media ── */
+.proj-media {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.media-item {
+  flex: 1;
+}
+.media-label {
+  font-size: 7pt;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+}
+.proj-img {
+  width: 100%;
+  max-height: 140px;
+  object-fit: contain;
+  border: 1px solid #e2e8f0;
+  border-radius: 4px;
+  background: #fafafa;
+}
+
+/* ── Pipeline Flow Diagram (HTML/CSS) ── */
+.pipeline-flow {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0;
+  padding: 10px 0;
+}
+.pipe-node {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 10px;
+  font-size: 7.5pt;
+  font-weight: 600;
+  border-radius: 4px;
+  white-space: nowrap;
+  text-align: center;
+  line-height: 1.3;
+}
+.pipe-node-primary {
+  background: var(--primary);
+  color: #fff;
+}
+.pipe-node-secondary {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border: 1px solid #bfdbfe;
+}
+.pipe-node-accent {
+  background: #111;
+  color: #fff;
+}
+.pipe-arrow {
+  font-size: 10pt;
+  color: #cbd5e1;
+  margin: 0 3px;
+  font-weight: 300;
+}
+.pipe-group {
+  border: 1px dashed #cbd5e1;
+  border-radius: 6px;
+  padding: 6px 8px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin: 2px 0;
+}
+.pipe-group-label {
+  font-size: 6.5pt;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 3px;
+}
+
 /* ── STAR Grid ── */
 .sdpa-grid {
   display: grid;
@@ -511,6 +593,28 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
 
   <div class="proj-overview">{{ h.overview }}</div>
 
+  {% if h.pipeline_nodes or h.demo_img %}
+  <div class="proj-media">
+    {% if h.pipeline_nodes %}
+    <div class="media-item">
+      <div class="media-label">파이프라인 구조</div>
+      <div class="pipeline-flow">
+        {% for node in h.pipeline_nodes %}
+          {% if not loop.first %}<span class="pipe-arrow">→</span>{% endif %}
+          <span class="pipe-node {{ node.style|default('pipe-node-secondary') }}">{{ node.label }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+    {% if h.demo_img %}
+    <div class="media-item">
+      <div class="media-label">실제 동작</div>
+      <img src="{{ h.demo_img }}" alt="{{ h.name }} 데모" class="proj-img">
+    </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
   <div class="section-title">상황 &middot; 판단 &middot; 행동 &middot; 결과</div>
   <div class="sdpa-grid">
     <div class="sdpa-label">상황</div>
@@ -561,6 +665,11 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
       {% if h.github_url %}
       <div style="margin-top:7px;">
         <a href="{{ h.github_url }}" class="github-link">{{ h.github_url | replace('https://', '') }}</a>
+      </div>
+      {% endif %}
+      {% if h.youtube_url %}
+      <div style="margin-top:7px;">
+        <a href="{{ h.youtube_url }}" class="github-link" style="border-color:#fca5a5;color:#dc2626;">▶ 데모 영상</a>
       </div>
       {% endif %}
     </div>
