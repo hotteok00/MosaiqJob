@@ -225,13 +225,6 @@ def enrich_portfolio(data: dict, registry: dict | None = None) -> dict:
                     if dl_url:
                         project["diagram_img"] = dl_url
 
-            # demo_img: OneDrive → YouTube 썸네일 순으로 주입
-            onedrive_demo_id = reg_entry.get("onedrive_demo_id")
-            if onedrive_demo_id:
-                dl_url = _resolve_onedrive_download_url(onedrive_demo_id)
-                if dl_url:
-                    project["demo_img"] = dl_url
-
             # youtube_url 추출
             yt_url = (
                 reg_entry.get("youtube")
@@ -239,13 +232,18 @@ def enrich_portfolio(data: dict, registry: dict | None = None) -> dict:
                 or reg_entry.get("youtube_week2")
             )
 
-            # demo_img 유튜브 썸네일 폴백 (OneDrive 실패 시)
-            if not _is_url(project.get("demo_img", "")):
-                vid = _youtube_video_id(yt_url) if yt_url else None
-                if vid:
-                    project["demo_img"] = (
-                        f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg"
-                    )
+            # demo_img: YouTube 썸네일 우선 (만료 없음), OneDrive는 보조
+            vid = _youtube_video_id(yt_url) if yt_url else None
+            if vid:
+                project["demo_img"] = (
+                    f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg"
+                )
+            else:
+                onedrive_demo_id = reg_entry.get("onedrive_demo_id")
+                if onedrive_demo_id:
+                    dl_url = _resolve_onedrive_download_url(onedrive_demo_id)
+                    if dl_url:
+                        project["demo_img"] = dl_url
 
             # youtube_url: 강제 주입
             if yt_url:

@@ -54,6 +54,5 @@
     "contribution_pct": 75, "contribution_desc": "",
     "tags": [""], "github_url": ""
   }],
-  "other_projects": [{"name": "", "subtitle": "", "description": "", "tags": [""], "period": "", "team": ""}],
-  "additional": [{"section": "", "entries": [{"title": "", "detail": "", "period": ""}]}]
+  "other_projects": [{"name": "", "subtitle": "", "description": "", "tags": [""], "period": "", "team": ""}]
 }

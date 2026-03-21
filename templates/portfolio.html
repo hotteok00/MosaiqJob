@@ -710,26 +710,7 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
   </div>
   {% endif %}
 
-  {% if additional %}
-  <div class="additional-section">
-    <div class="addl-grid">
-      {% for section in additional %}
-      <div>
-        <div class="section-title" style="margin-top:0;margin-bottom:8px;">{{ section.section }}</div>
-        {% for item in section.entries %}
-        <div class="addl-item">
-          <div>
-            <div class="addl-name">{{ item.title }}</div>
-            {% if item.detail %}<div class="addl-detail">{{ item.detail }}</div>{% endif %}
-          </div>
-          {% if item.period %}<span class="addl-period">{{ item.period }}</span>{% endif %}
-        </div>
-        {% endfor %}
-      </div>
-      {% endfor %}
-    </div>
-  </div>
-  {% endif %}
+  {# additional(수상/자격증/교육) 섹션은 이력서와 중복되므로 포트폴리오에서 제외 #}
 
   <div class="page-num">{{ 2 + highlights|length }} / {{ 2 + highlights|length }}</div>
 </div>
