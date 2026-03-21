@@ -7,22 +7,98 @@ agents/writer.py에서 Jinja2 렌더링 전에 호출하여
 from __future__ import annotations
 
 import json
+import logging
+import os
 import re
 from pathlib import Path
-from urllib.parse import urlparse
+
+import requests
+
+logger = logging.getLogger("mosaiq.enrich")
 
 REGISTRY_PATH = Path(__file__).parent.parent / "assets" / "registry.json"
+
+
+# ── OneDrive 이미지 URL 갱신 ──────────────────────────────
+
+
+_onedrive_token: str | None = None
+
+
+def _get_onedrive_token() -> str | None:
+    """OneDrive access token을 반환한다. 실패 시 None."""
+    global _onedrive_token
+    if _onedrive_token:
+        return _onedrive_token
+
+    client_id = os.environ.get("MICROSOFT_CLIENT_ID", "")
+    refresh_token = os.environ.get("MICROSOFT_REFRESH_TOKEN", "")
+    if not client_id or not refresh_token:
+        return None
+
+    try:
+        resp = requests.post(
+            "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+            data={
+                "client_id": client_id,
+                "grant_type": "refresh_token",
+                "refresh_token": refresh_token,
+                "scope": "Files.Read.All offline_access",
+            },
+            timeout=15,
+        )
+        if resp.status_code != 200:
+            logger.warning("OneDrive 토큰 갱신 실패 (HTTP %d)", resp.status_code)
+            return None
+        token = resp.json().get("access_token")
+        if not token:
+            logger.warning("OneDrive 토큰 응답에 access_token 없음")
+            return None
+        _onedrive_token = token
+        return _onedrive_token
+    except (requests.RequestException, ValueError) as e:
+        logger.warning("OneDrive 토큰 갱신 실패: %s", e)
+    return None
+
+
+def _resolve_onedrive_download_url(item_id: str) -> str | None:
+    """OneDrive item ID → 임시 download URL을 반환한다."""
+    token = _get_onedrive_token()
+    if not token:
+        return None
+
+    try:
+        resp = requests.get(
+            f"https://graph.microsoft.com/v1.0/me/drive/items/{item_id}",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15,
+        )
+        if resp.status_code == 200:
+            url = resp.json().get("@microsoft.graph.downloadUrl")
+            if url:
+                logger.info("OneDrive download URL 획득: %s → %s", item_id, url[:80])
+                return url
+    except (requests.RequestException, ValueError) as e:
+        logger.warning("OneDrive URL 갱신 실패 (%s): %s", item_id, e)
+    return None
 
 
 # ── 내부 유틸 ──────────────────────────────────────────────
 
 
+_registry_cache: dict | None = None
+
+
 def _load_registry() -> dict:
-    """assets/registry.json을 로드한다. 파일 없으면 빈 dict 반환."""
+    """assets/registry.json을 로드한다. 파일 없으면 빈 dict 반환. 결과를 캐싱한다."""
+    global _registry_cache
+    if _registry_cache is not None:
+        return _registry_cache
     try:
-        return json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
+        _registry_cache = json.loads(REGISTRY_PATH.read_text(encoding="utf-8"))
     except (FileNotFoundError, json.JSONDecodeError):
-        return {}
+        _registry_cache = {}
+    return _registry_cache
 
 
 def _normalize_github(url: str) -> str:
@@ -62,14 +138,31 @@ def _is_url(s: str) -> bool:
     return s.strip().startswith(("http://", "https://"))
 
 
-def _find_registry_project(registry: dict, project_name: str) -> dict | None:
-    """registry에서 프로젝트 이름으로 매칭한다 (대소문자 무시)."""
+def _find_registry_project(registry: dict, project_name: str) -> tuple[dict | None, str | None]:
+    """registry에서 프로젝트 이름으로 매칭한다. (매칭 결과, 매칭된 키) 반환.
+
+    매칭 전략 (우선순위):
+    1. 정확 매칭 (대소문자 무시)
+    2. 부분 매칭: 레지스트리 키가 프로젝트명에 포함되거나 그 반대
+    """
     projects = registry.get("projects", {})
-    name_lower = project_name.lower()
+    if not project_name:
+        return None, None
+
+    name_lower = project_name.lower().strip()
+
+    # 1) 정확 매칭
     for key, val in projects.items():
         if key.lower() == name_lower:
-            return val
-    return None
+            return val, key
+
+    # 2) 부분 매칭: 레지스트리 키가 프로젝트명에 포함
+    for key, val in projects.items():
+        key_lower = key.lower()
+        if key_lower in name_lower or name_lower in key_lower:
+            return val, key
+
+    return None, None
 
 
 # ── 공개 함수 ──────────────────────────────────────────────
@@ -115,43 +208,61 @@ def enrich_portfolio(data: dict, registry: dict | None = None) -> dict:
     highlights = data.get("highlights", [])
     for project in highlights:
         project_name = project.get("name", "") or project.get("title", "")
-        reg_entry = _find_registry_project(registry, project_name)
+        reg_entry, matched_key = _find_registry_project(registry, project_name)
 
         if reg_entry:
-            # diagram_img: 비어있거나 URL이 아니면 registry에서 매칭
-            if not _is_url(project.get("diagram_img", "")):
-                img = reg_entry.get("architecture") or reg_entry.get("flowchart")
-                if img:
-                    project["diagram_img"] = img
+            logger.info("레지스트리 매칭: '%s' → '%s'", project_name, matched_key)
 
-            # demo_img: 비어있거나 URL이 아니면 YouTube 썸네일 생성
+            # diagram_img: GitHub URL 우선 (만료 없음), OneDrive는 보조
+            reg_diagram = reg_entry.get("architecture") or reg_entry.get("flowchart")
+            if reg_diagram and _is_url(reg_diagram):
+                project["diagram_img"] = reg_diagram
+            else:
+                # GitHub URL이 없으면 OneDrive 시도
+                onedrive_arch_id = reg_entry.get("onedrive_architecture_id")
+                if onedrive_arch_id:
+                    dl_url = _resolve_onedrive_download_url(onedrive_arch_id)
+                    if dl_url:
+                        project["diagram_img"] = dl_url
+
+            # demo_img: OneDrive → YouTube 썸네일 순으로 주입
+            onedrive_demo_id = reg_entry.get("onedrive_demo_id")
+            if onedrive_demo_id:
+                dl_url = _resolve_onedrive_download_url(onedrive_demo_id)
+                if dl_url:
+                    project["demo_img"] = dl_url
+
+            # youtube_url 추출
+            yt_url = (
+                reg_entry.get("youtube")
+                or reg_entry.get("youtube_week1")
+                or reg_entry.get("youtube_week2")
+            )
+
+            # demo_img 유튜브 썸네일 폴백 (OneDrive 실패 시)
             if not _is_url(project.get("demo_img", "")):
-                yt_url = (
-                    reg_entry.get("youtube")
-                    or reg_entry.get("youtube_week1")
-                    or reg_entry.get("youtube_week2")
-                )
                 vid = _youtube_video_id(yt_url) if yt_url else None
                 if vid:
                     project["demo_img"] = (
                         f"https://img.youtube.com/vi/{vid}/maxresdefault.jpg"
                     )
 
-            # youtube_url
-            if not project.get("youtube_url"):
-                yt = (
-                    reg_entry.get("youtube")
-                    or reg_entry.get("youtube_week1")
-                    or reg_entry.get("youtube_week2")
-                )
-                if yt:
-                    project["youtube_url"] = yt
+            # youtube_url: 강제 주입
+            if yt_url:
+                project["youtube_url"] = yt_url
 
-            # github_url
-            if not project.get("github_url"):
-                gh = reg_entry.get("github")
-                if gh:
-                    project["github_url"] = gh
+            # github_url: 강제 주입
+            gh = reg_entry.get("github")
+            if gh:
+                project["github_url"] = gh
+        else:
+            logger.warning("레지스트리 매칭 실패: '%s'", project_name)
+
+        # 최종 검증: 이미지 URL이 비었으면 경고
+        if not _is_url(project.get("diagram_img", "")):
+            logger.warning("'%s': diagram_img 없음 — 레지스트리에 에셋 추가 필요", project_name)
+        if not _is_url(project.get("demo_img", "")):
+            logger.warning("'%s': demo_img 없음 — 레지스트리에 에셋 추가 필요", project_name)
 
         # STAR 항목 트리밍: 각 최대 3개 bullet
         star = project.get("star", {})
@@ -192,30 +303,27 @@ def enrich_cover(data: dict) -> dict:
 def shrink_portfolio_highlight(highlight: dict, level: int) -> dict:
     """강조 프로젝트 데이터를 축소한다. level이 높을수록 더 많이 축소.
 
-    level 1: STAR bullet 2개로, overview 1줄
-    level 2: 이미지 1개만, STAR bullet 1개
-    level 3: 이미지 제거, STAR bullet 1개, 기여도 설명 제거
+    이미지(diagram_img, demo_img)는 절대 제거하지 않는다.
+    텍스트만 줄여서 페이지를 맞춘다.
+
+    level 1: STAR bullet 2개로
+    level 2: STAR bullet 1개
+    level 3: STAR bullet 1개, 기여도 설명 제거
     """
-    h = highlight.copy()
+    import copy
+    h = copy.deepcopy(highlight)
 
     if level >= 1:
         for key in ("situation", "decision", "action", "result"):
             if isinstance(h.get(key), list) and len(h[key]) > 2:
                 h[key] = h[key][:2]
-        if h.get("overview") and len(h["overview"]) > 80:
-            h["overview"] = h["overview"][:80] + "…"
 
     if level >= 2:
         for key in ("situation", "decision", "action", "result"):
             if isinstance(h.get(key), list) and len(h[key]) > 1:
                 h[key] = h[key][:1]
-        # 이미지 1개만 유지 (diagram 우선)
-        if h.get("diagram_img") and h.get("demo_img"):
-            h["demo_img"] = ""
 
     if level >= 3:
-        h["diagram_img"] = ""
-        h["demo_img"] = ""
         h["contribution_desc"] = ""
 
     return h

@@ -87,3 +87,98 @@ class PipelineState(BaseModel):
     strategy: Strategy | None = None
     documents: Documents | None = None
     cross_check: CrossCheckResult | None = None
+
+
+# ── V2 모델 ────────────────────────────────────────────────
+
+
+class Strength(BaseModel):
+    area: str
+    evidence: str = ""
+    uniqueness: str = ""
+
+
+class Weakness(BaseModel):
+    area: str
+    impact: str = ""
+    mitigation_hint: str = ""
+
+
+class CandidateProfile(BaseModel):
+    career_narrative: str = ""
+    career_turning_points: list[str] = []
+    career_gaps: list[str] = []
+    strengths: list[Strength] = []
+    weaknesses: list[Weakness] = []
+    persona: str = ""
+    persona_fit: str = ""
+    transferable_skills: list[str] = []
+    project_depth_ranking: list[str] = []
+
+
+class GapEntry(BaseModel):
+    requirement: str
+    my_evidence: str = ""
+    status: str = "gap"  # "met" | "partial" | "gap"
+    weakness_strategy: str | None = None
+
+
+class WeaknessStrategy(BaseModel):
+    pattern: str = ""
+    message: str = ""
+
+
+class Positioning(BaseModel):
+    one_liner: str = ""
+    competitive_advantage: str = ""
+    key_messages: list[str] = []
+
+
+class DocumentDistribution(BaseModel):
+    resume: list[str] = []
+    portfolio: list[str] = []
+    cover: list[str] = []
+
+
+class EmotionalArc(BaseModel):
+    resume: str = ""
+    portfolio: str = ""
+    cover: str = ""
+
+
+class CoverQuestionPlan(BaseModel):
+    question: str = ""
+    core_message: str = ""
+    evidence_projects: list[str] = []
+    angle: str = ""
+
+
+class BlueprintDetail(BaseModel):
+    experience_distribution: DocumentDistribution = DocumentDistribution()
+    emotional_arc: EmotionalArc = EmotionalArc()
+    per_document_role: dict[str, str] = {}
+    cover_question_plan: list[CoverQuestionPlan] = []
+
+
+class Blueprint(BaseModel):
+    gap_matrix: list[GapEntry] = []
+    weakness_strategies: dict[str, WeaknessStrategy] = {}
+    positioning: Positioning = Positioning()
+    blueprint: BlueprintDetail = BlueprintDetail()
+    match_rate: float = 0.0
+    storyline: str = ""
+    highlight_projects: list[str] = []
+    highlight_reasons: list[str] = []
+
+
+class InterviewRisk(BaseModel):
+    predicted_question: str = ""
+    source: str = ""
+    risk_level: str = "medium"  # "high" | "medium" | "low"
+    defense_strategy: str = ""
+    sample_answer: str = ""
+
+
+class CoachResult(BaseModel):
+    overall_scores: dict[str, object] = {}
+    interview_risks: list[InterviewRisk] = []

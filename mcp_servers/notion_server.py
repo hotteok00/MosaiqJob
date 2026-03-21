@@ -4,25 +4,22 @@ Notion API를 호출하여 페이지 검색, 읽기, 데이터베이스 쿼리�
 """
 
 import os
-import requests
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from base import MCPServer
 
-server = MCPServer(name="notion", version="1.0.0")
+try:
+    from mcp_servers.base import MCPServer
+except ImportError:
+    from base import MCPServer
 
 NOTION_API_KEY = os.environ.get("NOTION_API_KEY", "")
 NOTION_VERSION = "2022-06-28"
 BASE_URL = "https://api.notion.com/v1"
 
-
-def _headers() -> dict:
-    return {
-        "Authorization": f"Bearer {NOTION_API_KEY}",
-        "Notion-Version": NOTION_VERSION,
-        "Content-Type": "application/json",
-    }
+server = MCPServer(name="notion", version="1.0.0")
+server.set_headers({
+    "Authorization": f"Bearer {NOTION_API_KEY}",
+    "Notion-Version": NOTION_VERSION,
+    "Content-Type": "application/json",
+})
 
 
 # ── 블록 텍스트 추출 헬퍼 ──────────────────────────────────────────
@@ -83,8 +80,14 @@ def _format_block(block: dict, indent: int = 0) -> str:
     return f"{prefix}[{btype}]"
 
 
+_MAX_BLOCK_DEPTH = 5
+
+
 def _fetch_blocks(block_id: str, indent: int = 0) -> list[str]:
     """block_id 하위의 모든 블록을 재귀적으로 수집하여 텍스트 리스트로 반환한다."""
+    if indent >= _MAX_BLOCK_DEPTH:
+        return [f"{'  ' * indent}[... 하위 블록 생략 (최대 깊이 {_MAX_BLOCK_DEPTH})]"]
+
     lines: list[str] = []
     url = f"{BASE_URL}/blocks/{block_id}/children"
     has_more = True
@@ -95,9 +98,7 @@ def _fetch_blocks(block_id: str, indent: int = 0) -> list[str]:
         if start_cursor:
             params["start_cursor"] = start_cursor
 
-        resp = requests.get(url, headers=_headers(), params=params)
-        resp.raise_for_status()
-        data = resp.json()
+        data = server.api_get(url, params=params).json()
 
         for block in data.get("results", []):
             lines.append(_format_block(block, indent))
@@ -227,13 +228,10 @@ def _format_db_row(page: dict) -> str:
     },
 )
 def search(query: str) -> str:
-    resp = requests.post(
+    results = server.api_post(
         f"{BASE_URL}/search",
-        headers=_headers(),
         json={"query": query, "page_size": 20},
-    )
-    resp.raise_for_status()
-    results = resp.json().get("results", [])
+    ).json().get("results", [])
 
     if not results:
         return "검색 결과가 없습니다."
@@ -259,9 +257,7 @@ def search(query: str) -> str:
 )
 def read_page(page_id: str) -> str:
     # 1) 페이지 속성 조회
-    resp = requests.get(f"{BASE_URL}/pages/{page_id}", headers=_headers())
-    resp.raise_for_status()
-    page = resp.json()
+    page = server.api_get(f"{BASE_URL}/pages/{page_id}").json()
 
     # 제목 추출
     title = ""
@@ -321,13 +317,10 @@ def query_database(database_id: str) -> str:
         if start_cursor:
             body["start_cursor"] = start_cursor
 
-        resp = requests.post(
+        data = server.api_post(
             f"{BASE_URL}/databases/{database_id}/query",
-            headers=_headers(),
             json=body,
-        )
-        resp.raise_for_status()
-        data = resp.json()
+        ).json()
         results.extend(data.get("results", []))
         has_more = data.get("has_more", False)
         start_cursor = data.get("next_cursor")

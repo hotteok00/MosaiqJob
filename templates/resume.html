@@ -297,47 +297,62 @@
   </section>
   {% endif %}
 
-  <!-- PROJECTS -->
+  <!-- PROJECTS: 상위 2개 상세 + 나머지 간략 -->
   {% if projects %}
   <section>
     <div class="section-title">프로젝트</div>
-    {% for p in projects %}
-    {% if not loop.first %}
-    <hr class="thin">
-    {% endif %}
+    {%- for p in projects[:2] %}
+    {% if not loop.first %}<hr class="thin">{% endif %}
     <div class="project-item">
       <div class="proj-header">
         <div>
           <span class="proj-name">{{ p.name }}{% if p.is_personal %}<span class="badge-personal">개인</span>{% endif %}</span>
-          {% if p.subtitle %}
-          <span class="proj-subtitle">{{ p.subtitle }}</span>
-          {% endif %}
+          {% if p.subtitle %}<span class="proj-subtitle">{{ p.subtitle }}</span>{% endif %}
         </div>
         <span class="proj-meta">
           {% if p.is_personal and p.github_url %}
           <a href="{{ p.github_url }}" style="color:#2563eb; text-decoration:none;">{{ p.github_url | replace('https://', '') }}</a>
           {% else %}
-          {{ p.period }}{% if p.team %} &nbsp;&middot;&nbsp; {{ p.team }}{% endif %}
+          {{ p.period }}{% if p.team %} &middot; {{ p.team }}{% endif %}
           {% endif %}
         </span>
       </div>
       {% if p.role_desc %}
-      <div class="proj-role">
-        {{ p.role_desc }}
-      </div>
+      <div class="proj-role">{{ p.role_desc }}</div>
       {% endif %}
       {% if p.tags %}
       <div class="proj-tech">
         {% if p.is_personal %}<span class="tag tag-green">개인 프로젝트</span>{% endif %}
-        {% for t in p.tags %}
-        <span class="tag">{{ t }}</span>
-        {% endfor %}
+        {% for t in p.tags %}<span class="tag">{{ t }}</span>{% endfor %}
       </div>
       {% endif %}
     </div>
-    {% endfor %}
+    {%- endfor %}
+    {%- if projects[2:] %}
+    <hr class="thin">
+    {%- for p in projects[2:] %}
+    <div class="project-item" style="margin-bottom:3px;">
+      <div class="proj-header">
+        <div>
+          <span class="proj-name">{{ p.name }}{% if p.is_personal %}<span class="badge-personal">개인</span>{% endif %}</span>
+          {% if p.subtitle %}<span class="proj-subtitle">{{ p.subtitle }}</span>{% endif %}
+        </div>
+        <span class="proj-meta">{{ p.period }}{% if p.team %} &middot; {{ p.team }}{% endif %}</span>
+      </div>
+      {% if p.tags %}
+      <div class="proj-tech" style="margin-top:1px;">
+        {% for t in p.tags[:5] %}<span class="tag">{{ t }}</span>{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+    {%- endfor %}
+    {%- endif %}
   </section>
   {% endif %}
+
+</div><!-- 1페이지 끝: 헤더 + 요약 + 경력 + 프로젝트 -->
+
+<div class="page page-break">
 
   <!-- TECH STACK -->
   {% if skills %}

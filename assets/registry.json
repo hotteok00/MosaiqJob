@@ -1,28 +1,40 @@
 {
   "description": "프로젝트별 정적 에셋 경로 레지스트리. 포트폴리오 등에서 참조.",
+  "onedrive_drive_id": "245e10df6cb77cc7",
   "projects": {
     "MEDICREW": {
+      "priority": "high",
       "youtube": "https://youtu.be/V7rXOWxyarg",
       "architecture": "https://github.com/user-attachments/assets/54c450b5-9f4c-405e-8fef-ba0b9490e580",
       "flowchart": "https://github.com/user-attachments/assets/67010a89-4dae-406c-8c7c-979b4136967a",
-      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-2"
+      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-2",
+      "onedrive_architecture_id": "245E10DF6CB77CC7!s36f85cddb0d64991a11573551406aeb9",
+      "onedrive_demo_id": "245E10DF6CB77CC7!sf1b4eaf70cfc462b9b0a334485d3556f"
     },
     "ROADY": {
+      "priority": "high",
+      "youtube": "https://youtu.be/scLdyGJXrE8",
       "youtube_week1": "https://youtu.be/pgqLOggiihU",
       "youtube_week2": "https://youtu.be/scLdyGJXrE8",
-      "diagram_week1": "https://github.com/user-attachments/assets/30f80edf-bb54-403e-8b98-8cfb8fafcfc0",
-      "fsm_diagram": "https://github.com/user-attachments/assets/FSM_ROADY",
-      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-3"
+      "architecture": "https://github.com/user-attachments/assets/30f80edf-bb54-403e-8b98-8cfb8fafcfc0",
+      "flowchart": "https://github.com/user-attachments/assets/FSM_ROADY",
+      "github": "https://github.com/Rokey-3-D-2-Second/collaboration-3",
+      "onedrive_architecture_id": "245E10DF6CB77CC7!sfd3c25885f074f90bcd0aaeeb7189b41",
+      "onedrive_demo_id": "245E10DF6CB77CC7!sf28cc17c66d945b0a1a14334804990a7"
     },
     "CODA": {
+      "priority": "high",
       "youtube": "https://youtube.com/shorts/FaUu1ptY77Y",
       "architecture": "https://github.com/user-attachments/assets/53a3d17e-96e8-4877-a371-c063a2284c0a",
       "demo_video": "https://github.com/user-attachments/assets/579fdd42-cd57-4035-af2e-b0374ae688f1",
-      "github": "https://github.com/Rokey-3-D-autonomous/coda"
+      "github": "https://github.com/Rokey-3-D-autonomous/coda",
+      "onedrive_architecture_id": "245E10DF6CB77CC7!s8a590d17395f4e29846a5b7c931f8512",
+      "onedrive_demo_id": "245E10DF6CB77CC7!sfb34a8b3b2cf4b22876a5fa6a6954fa8"
     },
     "DrawBot": {
-      "demo_video_onedrive": "https://onedrive.live.com/?id=9af2445d-8613-463b-b56a-ea43ae6fec3c&cid=245e10df6cb77cc7",
-      "github": "https://github.com/Rokey-3-D/dr_writer"
+      "github": "https://github.com/Rokey-3-D/dr_writer",
+      "onedrive_architecture_id": "245E10DF6CB77CC7!safe2f04a80a24968a09fc4440dbef71d",
+      "onedrive_demo_id": "245E10DF6CB77CC7!sce1965a8274342a390a9578e734ea3e7"
     },
     "ArtGuard": {
       "github": "https://github.com/Rokey-3-D-2-Second/collaboration-1"

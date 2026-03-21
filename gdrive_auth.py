@@ -67,7 +67,7 @@ def main():
     }).encode()
 
     req = urllib.request.Request("https://oauth2.googleapis.com/token", data=data)
-    resp = urllib.request.urlopen(req)
+    resp = urllib.request.urlopen(req, timeout=30)
     tokens = json.loads(resp.read())
 
     refresh_token = tokens.get("refresh_token")

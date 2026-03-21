@@ -6,10 +6,10 @@ Google Drive 파일 검색 및 읽기 기능을 제공한다.
 import io
 import os
 
-import sys
-from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent))
-from base import MCPServer
+try:
+    from mcp_servers.base import MCPServer
+except ImportError:
+    from base import MCPServer
 
 server = MCPServer("google-drive", "1.0.0")
 
@@ -26,9 +26,14 @@ def _get_service():
     from google.oauth2.credentials import Credentials
     from googleapiclient.discovery import build
 
-    client_id = os.environ["GOOGLE_CLIENT_ID"]
-    client_secret = os.environ["GOOGLE_CLIENT_SECRET"]
-    refresh_token = os.environ["GOOGLE_REFRESH_TOKEN"]
+    client_id = os.environ.get("GOOGLE_CLIENT_ID")
+    client_secret = os.environ.get("GOOGLE_CLIENT_SECRET")
+    refresh_token = os.environ.get("GOOGLE_REFRESH_TOKEN")
+
+    if not all([client_id, client_secret, refresh_token]):
+        missing = [k for k in ("GOOGLE_CLIENT_ID", "GOOGLE_CLIENT_SECRET", "GOOGLE_REFRESH_TOKEN")
+                   if not os.environ.get(k)]
+        raise RuntimeError(f"Google Drive 환경변수 미설정: {', '.join(missing)}")
 
     creds = Credentials(
         token=None,
@@ -78,7 +83,7 @@ def search(query: str) -> str:
     for i, f in enumerate(files, 1):
         size = f.get("size", "-")
         if size != "-":
-            size = _format_size(int(size))
+            size = MCPServer.format_size(int(size))
         lines.append(
             f"{i}. {f['name']}\n"
             f"   ID: {f['id']}\n"
@@ -142,15 +147,6 @@ def read_file(file_id: str) -> str:
 
     header = f"=== {name} ===\n유형: {mime_type}\n{'=' * 40}\n"
     return header + content
-
-
-def _format_size(size_bytes: int) -> str:
-    """바이트 수를 사람이 읽기 좋은 단위로 변환한다."""
-    for unit in ("B", "KB", "MB", "GB"):
-        if size_bytes < 1024:
-            return f"{size_bytes:.1f} {unit}"
-        size_bytes /= 1024
-    return f"{size_bytes:.1f} TB"
 
 
 if __name__ == "__main__":

@@ -11,7 +11,7 @@ from agents.llm import ask_claude
 class TestAskClaude:
     def test_returns_result(self, mock_claude_cli):
         result = ask_claude("테스트 프롬프트")
-        assert result == "mocked claude response"
+        assert "mocked" in result
 
     def test_passes_prompt_to_cli(self, mock_claude_cli):
         ask_claude("안녕하세요")

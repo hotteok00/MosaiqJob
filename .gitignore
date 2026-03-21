@@ -35,6 +35,7 @@ Desktop.ini
 
 # Project
 output/
+target_jd/
 .chainlit/
 .mcp.json
 
