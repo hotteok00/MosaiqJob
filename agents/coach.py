@@ -11,7 +11,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
-from agents.llm import ask_claude, extract_json
+from agents.llm import ask_claude, extract_json, build_fix_prompt
 
 logger = logging.getLogger("mosaiq.coach")
 
@@ -80,54 +80,6 @@ def _parse_coach_result(raw_json: str) -> tuple[list[CoachFeedback], dict, list[
     return feedbacks, overall, risks
 
 
-def _build_fix_prompt(
-    errors: list[CoachFeedback],
-    resume_data: dict,
-    portfolio_data: dict,
-    cover_data: dict,
-) -> str:
-    """ERROR 급 피드백에 대한 targeted fix 프롬프트를 생성한다."""
-    affected_docs = {f.doc for f in errors if f.doc}
-
-    error_lines = []
-    for fb in errors:
-        error_lines.append(f"- [{fb.doc}] {fb.persona}/{fb.category}: {fb.description}")
-        if fb.fix_suggestion:
-            error_lines.append(f"  수정 제안: {fb.fix_suggestion}")
-    errors_text = "\n".join(error_lines)
-
-    parts = [
-        "아래 설득력 코칭에서 발견된 오류를 수정하세요.",
-        "수정이 필요한 문서의 JSON만 수정하여 반환하세요.",
-        "수정 대상이 아닌 문서는 포함하지 마세요.",
-        "나머지 내용은 절대 변경하지 마세요.",
-        "",
-        "## 발견된 오류",
-        errors_text,
-        "",
-    ]
-
-    if "resume" in affected_docs:
-        parts.append("## 이력서 JSON")
-        parts.append(json.dumps(resume_data, ensure_ascii=False))
-        parts.append("")
-    if "portfolio" in affected_docs:
-        parts.append("## 포트폴리오 JSON")
-        parts.append(json.dumps(portfolio_data, ensure_ascii=False))
-        parts.append("")
-    if "cover" in affected_docs:
-        parts.append("## 자소서 JSON")
-        parts.append(json.dumps(cover_data, ensure_ascii=False))
-        parts.append("")
-
-    parts.append(
-        '수정된 JSON을 다음 형식으로 반환하세요: {"resume": {...}, "portfolio": {...}, "cover": {...}}'
-        " (수정한 문서만 포함). 코드블록 마커(```)를 사용하지 마세요."
-    )
-
-    return "\n".join(parts)
-
-
 def coach_review(
     jd_analysis: str,
     blueprint: str,
@@ -172,7 +124,7 @@ def coach_review(
         return resume_data, portfolio_data, cover_data, feedbacks, overall, risks
 
     logger.warning("코칭 ERROR %d건 → targeted 수정 시도", len(errors))
-    fix_prompt = _build_fix_prompt(errors, resume_data, portfolio_data, cover_data)
+    fix_prompt = build_fix_prompt(errors, resume_data, portfolio_data, cover_data, context_label="설득력 코칭")
 
     try:
         fixed_response = ask_claude(fix_prompt, timeout=600)

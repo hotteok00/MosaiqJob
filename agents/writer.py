@@ -31,7 +31,7 @@ COVER_V2_PROMPT = (PROMPTS_DIR / "writer_cover_v2.md").read_text()
 
 _jinja_env = Environment(
     loader=FileSystemLoader(str(TEMPLATES_DIR)),
-    autoescape=False,
+    autoescape=True,
 )
 
 _MAX_STRUCTURE_RETRIES = 3   # Layer 1: 구조 오류 시 전체 재생성

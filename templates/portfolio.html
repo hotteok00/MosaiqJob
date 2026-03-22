@@ -534,7 +534,7 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
     </div>
   </div>
 
-  <div class="p1-statement">{{ summary }}</div>
+  <div class="p1-statement">{{ summary | safe }}</div>
 
   <div class="section-title">핵심 역량</div>
   <div class="competency-grid">
@@ -596,7 +596,7 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
     </div>
   </div>
 
-  <div class="proj-overview">{{ h.overview }}</div>
+  <div class="proj-overview">{{ h.overview | safe }}</div>
 
   {% if h.diagram_img or h.demo_img %}
   <div class="proj-media">

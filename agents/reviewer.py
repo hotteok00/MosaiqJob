@@ -11,7 +11,7 @@ import logging
 from dataclasses import dataclass
 from pathlib import Path
 
-from agents.llm import ask_claude, extract_json
+from agents.llm import ask_claude, extract_json, build_fix_prompt
 
 logger = logging.getLogger("mosaiq.reviewer")
 
@@ -110,55 +110,6 @@ def _parse_review_issues(review_json: str) -> list[ReviewIssue]:
     return issues
 
 
-def _build_fix_prompt(
-    issues: list[ReviewIssue],
-    resume_data: dict,
-    portfolio_data: dict,
-    cover_data: dict,
-) -> str:
-    """수정이 필요한 문서만 포함하는 targeted fix 프롬프트를 생성한다."""
-    affected_docs = {i.doc for i in issues if i.severity == "error" and i.doc}
-
-    error_lines = []
-    for issue in issues:
-        if issue.severity == "error":
-            error_lines.append(f"- [{issue.doc}] {issue.category}: {issue.description}")
-            if issue.fix_suggestion:
-                error_lines.append(f"  수정 제안: {issue.fix_suggestion}")
-    errors_text = "\n".join(error_lines)
-
-    prompt_parts = [
-        "아래 크로스체크에서 발견된 오류를 수정하세요.",
-        "수정이 필요한 문서의 JSON만 수정하여 반환하세요.",
-        "수정 대상이 아닌 문서는 포함하지 마세요.",
-        "나머지 내용은 절대 변경하지 마세요.",
-        "",
-        "## 발견된 오류",
-        errors_text,
-        "",
-    ]
-
-    if "resume" in affected_docs:
-        prompt_parts.append("## 이력서 JSON")
-        prompt_parts.append(json.dumps(resume_data, ensure_ascii=False))
-        prompt_parts.append("")
-    if "portfolio" in affected_docs:
-        prompt_parts.append("## 포트폴리오 JSON")
-        prompt_parts.append(json.dumps(portfolio_data, ensure_ascii=False))
-        prompt_parts.append("")
-    if "cover" in affected_docs:
-        prompt_parts.append("## 자소서 JSON")
-        prompt_parts.append(json.dumps(cover_data, ensure_ascii=False))
-        prompt_parts.append("")
-
-    prompt_parts.append(
-        '수정된 JSON을 다음 형식으로 반환하세요: {"resume": {...}, "portfolio": {...}, "cover": {...}}'
-        " (수정한 문서만 포함). 코드블록 마커(```)를 사용하지 마세요."
-    )
-
-    return "\n".join(prompt_parts)
-
-
 def review_and_fix(
     jd_analysis: str,
     resume_data: dict,
@@ -194,7 +145,7 @@ def review_and_fix(
 
     # 2단계: targeted 수정 (1회만)
     logger.warning("크로스체크 ERROR %d건 → targeted 수정 시도", len(errors))
-    fix_prompt = _build_fix_prompt(errors, resume_data, portfolio_data, cover_data)
+    fix_prompt = build_fix_prompt(errors, resume_data, portfolio_data, cover_data, context_label="크로스체크")
 
     try:
         fixed_response = ask_claude(fix_prompt, timeout=600)

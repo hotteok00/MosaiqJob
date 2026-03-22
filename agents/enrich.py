@@ -10,6 +10,7 @@ import json
 import logging
 import os
 import re
+import threading
 from pathlib import Path
 
 import requests
@@ -23,42 +24,48 @@ REGISTRY_PATH = Path(__file__).parent.parent / "assets" / "registry.json"
 
 
 _onedrive_token: str | None = None
+_onedrive_token_lock = threading.Lock()
 
 
 def _get_onedrive_token() -> str | None:
-    """OneDrive access token을 반환한다. 실패 시 None."""
+    """OneDrive access token을 반환한다. 실패 시 None. 스레드 안전."""
     global _onedrive_token
     if _onedrive_token:
         return _onedrive_token
 
-    client_id = os.environ.get("MICROSOFT_CLIENT_ID", "")
-    refresh_token = os.environ.get("MICROSOFT_REFRESH_TOKEN", "")
-    if not client_id or not refresh_token:
-        return None
+    with _onedrive_token_lock:
+        # Double-checked locking: lock 획득 사이에 다른 스레드가 설정했을 수 있음
+        if _onedrive_token:
+            return _onedrive_token
 
-    try:
-        resp = requests.post(
-            "https://login.microsoftonline.com/common/oauth2/v2.0/token",
-            data={
-                "client_id": client_id,
-                "grant_type": "refresh_token",
-                "refresh_token": refresh_token,
-                "scope": "Files.Read.All offline_access",
-            },
-            timeout=15,
-        )
-        if resp.status_code != 200:
-            logger.warning("OneDrive 토큰 갱신 실패 (HTTP %d)", resp.status_code)
+        client_id = os.environ.get("MICROSOFT_CLIENT_ID", "")
+        refresh_token = os.environ.get("MICROSOFT_REFRESH_TOKEN", "")
+        if not client_id or not refresh_token:
             return None
-        token = resp.json().get("access_token")
-        if not token:
-            logger.warning("OneDrive 토큰 응답에 access_token 없음")
-            return None
-        _onedrive_token = token
-        return _onedrive_token
-    except (requests.RequestException, ValueError) as e:
-        logger.warning("OneDrive 토큰 갱신 실패: %s", e)
-    return None
+
+        try:
+            resp = requests.post(
+                "https://login.microsoftonline.com/common/oauth2/v2.0/token",
+                data={
+                    "client_id": client_id,
+                    "grant_type": "refresh_token",
+                    "refresh_token": refresh_token,
+                    "scope": "Files.Read.All offline_access",
+                },
+                timeout=15,
+            )
+            if resp.status_code != 200:
+                logger.warning("OneDrive 토큰 갱신 실패 (HTTP %d)", resp.status_code)
+                return None
+            token = resp.json().get("access_token")
+            if not token:
+                logger.warning("OneDrive 토큰 응답에 access_token 없음")
+                return None
+            _onedrive_token = token
+            return _onedrive_token
+        except (requests.RequestException, ValueError) as e:
+            logger.warning("OneDrive 토큰 갱신 실패: %s", e)
+        return None
 
 
 def _resolve_onedrive_download_url(item_id: str) -> str | None:

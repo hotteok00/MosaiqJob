@@ -140,6 +140,60 @@ def set_backend(backend: LLMBackend) -> None:
     _backend = backend
 
 
+def build_fix_prompt(
+    error_items: list,
+    resume_data: dict,
+    portfolio_data: dict,
+    cover_data: dict,
+    *,
+    context_label: str = "크로스체크",
+) -> str:
+    """ERROR 급 이슈에 대한 targeted fix 프롬프트를 생성한다.
+
+    reviewer와 coach에서 공통으로 사용한다.
+    error_items는 .doc, .severity, .category, .description, .fix_suggestion 속성을 가져야 한다.
+    """
+    affected_docs = {i.doc for i in error_items if i.doc}
+
+    error_lines = []
+    for item in error_items:
+        error_lines.append(f"- [{item.doc}] {item.category}: {item.description}")
+        if item.fix_suggestion:
+            error_lines.append(f"  수정 제안: {item.fix_suggestion}")
+    errors_text = "\n".join(error_lines)
+
+    parts = [
+        f"아래 {context_label}에서 발견된 오류를 수정하세요.",
+        "수정이 필요한 문서의 JSON만 수정하여 반환하세요.",
+        "수정 대상이 아닌 문서는 포함하지 마세요.",
+        "나머지 내용은 절대 변경하지 마세요.",
+        "",
+        "## 발견된 오류",
+        errors_text,
+        "",
+    ]
+
+    if "resume" in affected_docs:
+        parts.append("## 이력서 JSON")
+        parts.append(json.dumps(resume_data, ensure_ascii=False))
+        parts.append("")
+    if "portfolio" in affected_docs:
+        parts.append("## 포트폴리오 JSON")
+        parts.append(json.dumps(portfolio_data, ensure_ascii=False))
+        parts.append("")
+    if "cover" in affected_docs:
+        parts.append("## 자소서 JSON")
+        parts.append(json.dumps(cover_data, ensure_ascii=False))
+        parts.append("")
+
+    parts.append(
+        '수정된 JSON을 다음 형식으로 반환하세요: {"resume": {...}, "portfolio": {...}, "cover": {...}}'
+        " (수정한 문서만 포함). 코드블록 마커(```)를 사용하지 마세요."
+    )
+
+    return "\n".join(parts)
+
+
 def extract_json(response: str) -> str:
     """LLM 응답에서 JSON 부분만 추출한다.
 

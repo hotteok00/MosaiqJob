@@ -15,7 +15,7 @@ from agents import analyst, source, strategist, writer, reviewer
 from agents import profiler as profiler_agent
 from agents import coach as coach_agent
 from agents.log import setup_logging
-from renderer.pdf import html_to_pdf, html_to_pdf_bytes
+from renderer.pdf import html_to_pdf
 
 load_dotenv()
 setup_logging()
@@ -81,7 +81,9 @@ def _extract_company_name(*json_sources: str) -> str:
             data = json.loads(text) if text.strip().startswith("{") else {}
             name = _find(data)
             if name:
-                return re.sub(r'[\\/*?:"<>|]', "_", name)
+                name = re.sub(r'[\\/*?:"<>|]', "_", name)
+                name = name.replace("..", "_")
+                return name.strip("._")
         except (json.JSONDecodeError, TypeError, ValueError):
             continue
     return "unknown"
@@ -93,6 +95,29 @@ def _make_output_dir(company_name: str) -> Path:
     output_dir = OUTPUT_ROOT / f"{company_name}_{timestamp}"
     output_dir.mkdir(parents=True, exist_ok=True)
     return output_dir
+
+
+def _render_and_save(
+    output_dir: Path,
+    resume_data: dict,
+    portfolio_data: dict,
+    cover_data: dict,
+) -> None:
+    """3개 문서를 HTML + PDF로 렌더링하여 output_dir에 저장한다."""
+    # 이력서
+    resume_html = writer.render_template("resume.html", resume_data)
+    (output_dir / "이력서.html").write_text(resume_html, encoding="utf-8")
+    html_to_pdf(resume_html, output_dir / "이력서.pdf")
+
+    # 포트폴리오 (페이지 축소 포함)
+    portfolio_html, portfolio_pdf_bytes = writer.render_portfolio_with_shrink(portfolio_data)
+    (output_dir / "포트폴리오.html").write_text(portfolio_html, encoding="utf-8")
+    (output_dir / "포트폴리오.pdf").write_bytes(portfolio_pdf_bytes)
+
+    # 자소서
+    cover_html = writer.render_template("cover_letter.html", cover_data)
+    (output_dir / "자소서.html").write_text(cover_html, encoding="utf-8")
+    html_to_pdf(cover_html, output_dir / "자소서.pdf")
 
 
 def _format_issues_panel(issues: list) -> str:
@@ -178,20 +203,7 @@ def run_pipeline(jd_text: str, questions: list[str], auto: bool = False) -> None
 
     # Step 9: 최종 렌더 + 파일 저장
     with console.status("[bold cyan]8/8 최종 렌더링 + PDF 생성 중..."):
-        # 이력서
-        resume_html = writer.render_template("resume.html", resume_data)
-        (output_dir / "이력서.html").write_text(resume_html, encoding="utf-8")
-        html_to_pdf(resume_html, output_dir / "이력서.pdf")
-
-        # 포트폴리오 (페이지 축소 포함)
-        portfolio_html, portfolio_pdf_bytes = writer.render_portfolio_with_shrink(portfolio_data)
-        (output_dir / "포트폴리오.html").write_text(portfolio_html, encoding="utf-8")
-        (output_dir / "포트폴리오.pdf").write_bytes(portfolio_pdf_bytes)
-
-        # 자소서
-        cover_html = writer.render_template("cover_letter.html", cover_data)
-        (output_dir / "자소서.html").write_text(cover_html, encoding="utf-8")
-        html_to_pdf(cover_html, output_dir / "자소서.pdf")
+        _render_and_save(output_dir, resume_data, portfolio_data, cover_data)
 
     console.print("[green]8/8[/green] 최종 렌더링 완료")
 
@@ -379,20 +391,7 @@ def run_pipeline_v2(jd_text: str, questions: list[str], auto: bool = False) -> N
 
     # 6/7 최종 렌더 + 파일 저장
     with console.status("[bold cyan]6/7 최종 렌더링 + PDF 생성 중..."):
-        # 이력서
-        resume_html = writer.render_template("resume.html", resume_data)
-        (output_dir / "이력서.html").write_text(resume_html, encoding="utf-8")
-        html_to_pdf(resume_html, output_dir / "이력서.pdf")
-
-        # 포트폴리오 (페이지 축소 포함)
-        portfolio_html, portfolio_pdf_bytes = writer.render_portfolio_with_shrink(portfolio_data)
-        (output_dir / "포트폴리오.html").write_text(portfolio_html, encoding="utf-8")
-        (output_dir / "포트폴리오.pdf").write_bytes(portfolio_pdf_bytes)
-
-        # 자소서
-        cover_html = writer.render_template("cover_letter.html", cover_data)
-        (output_dir / "자소서.html").write_text(cover_html, encoding="utf-8")
-        html_to_pdf(cover_html, output_dir / "자소서.pdf")
+        _render_and_save(output_dir, resume_data, portfolio_data, cover_data)
 
         # 면접 준비 가이드
         if risks:
@@ -497,7 +496,7 @@ def serve_output(port: int = 8080, output_path: Path | None = None) -> None:
         local_ip = "localhost"
 
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("0.0.0.0", port), OutputHandler) as httpd:
+    with socketserver.TCPServer(("127.0.0.1", port), OutputHandler) as httpd:
         console.print(Panel(
             f"[bold]http://{local_ip}:{port}[/bold]\n"
             f"[dim]output 디렉토리: {serve_dir}[/dim]\n"
