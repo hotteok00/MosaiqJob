@@ -24,10 +24,10 @@ RESUME_PROMPT = (PROMPTS_DIR / "writer_resume.md").read_text()
 PORTFOLIO_PROMPT = (PROMPTS_DIR / "writer_portfolio.md").read_text()
 COVER_PROMPT = (PROMPTS_DIR / "writer_cover.md").read_text()
 
-# V2 블루프린트 기반 프롬프트
-RESUME_V2_PROMPT = (PROMPTS_DIR / "writer_resume_v2.md").read_text()
-PORTFOLIO_V2_PROMPT = (PROMPTS_DIR / "writer_portfolio_v2.md").read_text()
-COVER_V2_PROMPT = (PROMPTS_DIR / "writer_cover_v2.md").read_text()
+# V2 별칭 (하위 호환)
+RESUME_V2_PROMPT = RESUME_PROMPT
+PORTFOLIO_V2_PROMPT = PORTFOLIO_PROMPT
+COVER_V2_PROMPT = COVER_PROMPT
 
 _jinja_env = Environment(
     loader=FileSystemLoader(str(TEMPLATES_DIR)),

@@ -67,6 +67,11 @@
 
     /* Header */
     .header { margin-bottom: 10px; }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+    }
     .header h1 {
       font-size: var(--h1-size);
       font-weight: 700;
@@ -76,6 +81,37 @@
       font-size: 9pt;
       color: #4b5563;
       margin-top: 3px;
+    }
+    .header-target {
+      text-align: right;
+      padding-top: 2px;
+    }
+    .header-target .target-company {
+      font-size: 10.5pt;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+    .header-target .target-position {
+      font-size: 8.5pt;
+      color: var(--text-secondary);
+      margin-top: 2px;
+    }
+    .header-photo {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+    }
+    .header-photo img {
+      width: 28mm;
+      height: 36mm;
+      object-fit: cover;
+      border-radius: 3px;
+      flex-shrink: 0;
+    }
+    .header-bio {
+      font-size: 8.3pt;
+      color: #555;
+      margin-top: 4px;
     }
     .header .contact {
       display: flex;
@@ -251,15 +287,31 @@
 
   <!-- HEADER -->
   <div class="header">
-    <h1>{{ person.name }}</h1>
-    {% if person.title %}
-    <div class="role">{{ person.title }}</div>
-    {% endif %}
-    <div class="contact">
-      {% if person.phone %}<span>{{ person.phone }}</span>{% endif %}
-      {% if person.email %}<span>{{ person.email }}</span>{% endif %}
-      {% if person.github %}<a href="https://github.com/{{ person.github.replace('github.com/', '') }}">{{ person.github }}</a>{% endif %}
-      {% if person.location %}<span>{{ person.location }}</span>{% endif %}
+    <div class="header-top">
+      <div class="header-photo">
+        {% if person.photo %}<img src="{{ person.photo }}" alt="증명사진">{% endif %}
+        <div>
+          <h1>{{ person.name }}</h1>
+          {% if person.title %}
+          <div class="role">{{ person.title }}</div>
+          {% endif %}
+          {% if person.gender or person.birth_year %}
+          <div class="header-bio">{{ person.gender }}{% if person.gender and person.birth_year %} · {% endif %}{% if person.birth_year %}{{ person.birth_year }}년생{% endif %}</div>
+          {% endif %}
+          <div class="contact">
+            {% if person.phone %}<span>{{ person.phone }}</span>{% endif %}
+            {% if person.email %}<span>{{ person.email }}</span>{% endif %}
+            {% if person.github %}<a href="https://github.com/{{ person.github.replace('github.com/', '') }}">{{ person.github }}</a>{% endif %}
+            {% if person.location %}<span>{{ person.location }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+      {% if target and target.company %}
+      <div class="header-target">
+        <div class="target-company">{{ target.company }}</div>
+        {% if target.position %}<div class="target-position">{{ target.position }}</div>{% endif %}
+      </div>
+      {% endif %}
     </div>
   </div>
 

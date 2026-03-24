@@ -526,6 +526,7 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
     <div>
       <h1>{{ person.name }}</h1>
       <div class="subtitle">{{ person.title }} &middot; Portfolio</div>
+      {% if target and target.company %}<div class="subtitle" style="font-size:8.5pt; color:#4b5563; margin-top:2px;">{{ target.company }} {{ target.position }} 지원</div>{% endif %}
     </div>
     <div class="meta">
       {{ person.email }} &nbsp;|&nbsp; {{ person.phone }}<br>
@@ -587,7 +588,7 @@ hr.thin  { border: none; border-top: 0.5px solid var(--border-light); margin: 7p
 <div class="page">
 
   <div class="proj-header">
-    <div class="proj-eyebrow">Highlight Project {{ '%02d'|format(h.order) }}{% if h.tags %} &nbsp;&middot;&nbsp; {{ h.tags[:3]|join(' &middot; ') }}{% endif %}</div>
+    <div class="proj-eyebrow">Highlight Project {{ '%02d'|format(h.order) }}{% if h.tags %} &nbsp;&middot;&nbsp; {{ h.tags[:3]|join(' · ') }}{% endif %}</div>
     <div class="proj-title">{{ h.name }} <span class="proj-title-sub">{{ h.subtitle }}</span></div>
     <div class="proj-meta-row">
       <span><strong>기간</strong> {{ h.period }}</span>
