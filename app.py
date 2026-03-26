@@ -496,7 +496,7 @@ def serve_output(port: int = 8080, output_path: Path | None = None) -> None:
         local_ip = "localhost"
 
     socketserver.TCPServer.allow_reuse_address = True
-    with socketserver.TCPServer(("127.0.0.1", port), OutputHandler) as httpd:
+    with socketserver.TCPServer(("0.0.0.0", port), OutputHandler) as httpd:
         console.print(Panel(
             f"[bold]http://{local_ip}:{port}[/bold]\n"
             f"[dim]output 디렉토리: {serve_dir}[/dim]\n"
